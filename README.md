@@ -1,2 +1,2 @@
 # d3worldmap
- An R Package for Creating D3 Maps. Currently in development.
+ An R package for creating D3 maps. Currently in development.
