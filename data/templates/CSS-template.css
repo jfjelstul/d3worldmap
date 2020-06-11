@@ -20,36 +20,36 @@
 }
 
 path {
-  stroke: {FEATURE_LINE_COLOR};
-  fill: {FEATURE_FILL_COLOR};
+  stroke: {{FEATURE_LINE_COLOR}};
+  fill: {{FEATURE_FILL_COLOR}};
   stroke-width: 0.3px;
 }
 
 .hovering {
-  stroke: {FEATURE_LINE_COLOR_HOVER};
-  fill: {FEATURE_FILL_COLOR_HOVER};
-  stroke-width: {FEATURE_LINE_SIZE_HOVER};
+  stroke: {{FEATURE_LINE_COLOR_HOVER}};
+  fill: {{FEATURE_FILL_COLOR_HOVER}};
+  stroke-width: {{FEATURE_LINE_SIZE_HOVER}};
 }
 
 .selected {
-  stroke: {FEATURE_LINE_COLOR_SELECT};
-  fill: {FEATURE_FILL_COLOR_SELECT};
-  stroke-width: {FEATURE_LINE_SIZE_SELECT};
+  stroke: {{FEATURE_LINE_COLOR_SELECT}};
+  fill: {{FEATURE_FILL_COLOR_SELECT}};
+  stroke-width: {{FEATURE_LINE_SIZE_SELECT}};
 }
 
 .selected-hovering {
-  stroke: {FEATURE_LINE_COLOR_SELECT_HOVER};
-  fill: {FEATURE_FILL_COLOR_SELECT_HOVER};
-  stroke-width: {FEATURE_LINE_SIZE_SELECT};
+  stroke: {{FEATURE_LINE_COLOR_SELECT_HOVER}};
+  fill: {{FEATURE_FILL_COLOR_SELECT_HOVER}};
+  stroke-width: {{FEATURE_LINE_SIZE_SELECT}};
 }
 
 div.tooltip {
-    position: fixed;
-    text-align: center;
-    background: {TOOLTIP_BACKGROUND_COLOR};
-    border: {TOOLTIP_BORDER_SIZE}px solid {TOOLTIP_BORDER_COLOR};
-    border-radius: {TOOLTIP_BORDER_RADIUS}px;
-    padding: {TOOLTIP_PADDING_Y}px {TOOLTIP_PADDING_X}px;
-    color: {TOOLTIP_FONT_COLOR};
-    font-size: {TOOLTIP_FONT_SIZE};
+  position: fixed;
+  text-align: center;
+  background: {{TOOLTIP_BACKGROUND_COLOR}};
+  border: {{TOOLTIP_BORDER_SIZE}}px solid {{TOOLTIP_BORDER_COLOR}};
+  border-radius: {{TOOLTIP_BORDER_RADIUS}}px;
+  padding: {{TOOLTIP_PADDING_Y}}px {{TOOLTIP_PADDING_X}}px;
+  color: {{TOOLTIP_FONT_COLOR}};
+  font-size: {{TOOLTIP_FONT_SIZE}};
 }
