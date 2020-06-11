@@ -5,7 +5,8 @@
   <script src="https://d3js.org/d3.v5.min.js"></script>
   <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
   <script src="https://d3js.org/d3-geo-projection.v2.min.js"></script>
-  <style>@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap');
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap');
 
 * {
   font-family: 'Roboto', sans-serif;
@@ -51,21 +52,23 @@ path {
 }
 
 div.tooltip {
-    position: fixed;
-    text-align: center;
-    background: #000000B3;
-    border: 0px solid #262626FF;
-    border-radius: 8px;
-    padding: 8px 16px;
-    color: #FFFFFFFF;
-    font-size: 10;
-}</style>
+  position: fixed;
+  text-align: center;
+  background: #000000B3;
+  border: 0px solid #262626FF;
+  border-radius: 8px;
+  padding: 8px 16px;
+  color: #FFFFFFFF;
+  font-size: 10;
+}
+  </style>
 </head>
 <body>
   <div class="container">
     <svg id="map" class="map"></svg>
   </div>
-  <script>// ==================================================
+  <script>
+    // ==================================================
 // geojson data
 // ==================================================
 
@@ -472,6 +475,7 @@ function onClick(d) {
 
 // ==================================================
 // end JS file
-// ==================================================</script>
+// ==================================================
+  </script>
 </body>
 </html>
