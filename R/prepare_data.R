@@ -1,14 +1,15 @@
 ###########################################################################
 # Josh Fjelstul, Ph.D.
+# 3dworldmap R package
 ###########################################################################
 
 # library
-library(dplyr)
-library(stringr)
-library(sf)
-library(mapproj)
-library(ggplot2)
-library(geojsonio)
+# library(dplyr)
+# library(stringr)
+# library(sf)
+# library(mapproj)
+# library(ggplot2)
+# library(geojsonio)
 
 # read in ISO codes
 ISO_codes <- read.csv("data/ISO_A3_codes.csv", stringsAsFactors = FALSE)
