@@ -1,0 +1,55 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap');
+
+* {
+  font-family: 'Roboto', sans-serif;
+  font-weight: 300;
+}
+
+.container {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.map {
+  border: {{MAP_BORDER_SIZE}}px solid {{MAP_BORDER_COLOR}};
+  margin: 50px;
+  background-color: {{MAP_BACKGROUND_COLOR}};
+}
+
+path {
+  stroke: {FEATURE_LINE_COLOR};
+  fill: {FEATURE_FILL_COLOR};
+  stroke-width: 0.3px;
+}
+
+.hovering {
+  stroke: {FEATURE_LINE_COLOR_HOVER};
+  fill: {FEATURE_FILL_COLOR_HOVER};
+  stroke-width: {FEATURE_LINE_SIZE_HOVER};
+}
+
+.selected {
+  stroke: {FEATURE_LINE_COLOR_SELECT};
+  fill: {FEATURE_FILL_COLOR_SELECT};
+  stroke-width: {FEATURE_LINE_SIZE_SELECT};
+}
+
+.selected-hovering {
+  stroke: {FEATURE_LINE_COLOR_SELECT_HOVER};
+  fill: {FEATURE_FILL_COLOR_SELECT_HOVER};
+  stroke-width: {FEATURE_LINE_SIZE_SELECT};
+}
+
+div.tooltip {
+    position: fixed;
+    text-align: center;
+    background: {TOOLTIP_BACKGROUND_COLOR};
+    border: {TOOLTIP_BORDER_SIZE}px solid {TOOLTIP_BORDER_COLOR};
+    border-radius: {TOOLTIP_BORDER_RADIUS}px;
+    padding: {TOOLTIP_PADDING_Y}px {TOOLTIP_PADDING_X}px;
+    color: {TOOLTIP_FONT_COLOR};
+    font-size: {TOOLTIP_FONT_SIZE};
+}
