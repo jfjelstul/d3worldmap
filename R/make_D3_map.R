@@ -46,15 +46,67 @@ formatting <- list(
 # map function
 ###########################################################################
 
-make_D3_map <- function(file_prefix = "D3_map", single_file = TRUE, formatting = NULL, width = NULL, height = NULL) {
+make_D3_map <- function(countries, file_prefix = "D3_map", surrounding = TRUE, main = TRUE, percent = 0.1, resolution = "low", single_file = TRUE, formatting = NULL, width = NULL, height = NULL) {
   
   # check for formatting
   if(is.null(formatting)) {
     stop("please supply a formatting object")
   }
   
+  ##################################################  
+  # prepare CSS
+  ##################################################
+  
+  # read in data
+  if(resolution == "low") {
+    map_data <- sf::read_sf("data/low-resolution-map")
+  } else if(resolution == "high") {
+    map_data <- sf::read_sf("data/high-resolution-map")
+  }
+
+  # if surrounding == TRUE
+  if(surrounding) {
+    
+    # select data
+    out <- map_data
+    
+    # select data
+    bounding_box_data <- dplyr::filter(out, ST_code %in% countries) 
+    
+    # if main == TRUE, select only main geometry
+    if(main) {
+      bounding_box_data <- dplyr::filter(bounding_box_data, !stringr::str_detect(UNIT_code, "other"))
+    }
+    
+    # make bounding box
+    bounding_box <- sf::st_bbox(bounding_box_data)
+    
+    # expand box
+    bounding_box <- expand_bounding_box(bounding_box, percent = percent)
+    
+    # clip geometry
+    out <- suppressWarnings(sf::st_crop(out, xmin = bounding_box$xmin, ymin = bounding_box$ymin, xmax = bounding_box$xmax, ymax = bounding_box$ymax))
+
+  # if surrounding == FALSE
+  } else {
+    
+    # select geometry
+    out <- dplyr::filter(map_data, ST_code %in% countries) 
+    
+    # if main == TRUE, select only main geometry
+    if(main) {
+      out <- dplyr::filter(out, !stringr::str_detect(UNIT_code, "other"))
+    }
+  }
+  
+  # tooltip HTML
+  out$tooltip <- out$ST_name
+  
+  # write file
+  geojsonio::geojson_write(out, file = "data/temp.geojson")
+  
   # prepare data
-  geojson <- suppressWarnings(readLines("data/test.geojson"))
+  geojson <- suppressWarnings(readLines("data/temp.geojson"))
   
   ##################################################  
   # prepare CSS
@@ -161,7 +213,6 @@ make_D3_map <- function(file_prefix = "D3_map", single_file = TRUE, formatting =
 # test function
 ##################################################
 
-
 formatting <- list(
   
   map_border_color = c(0.15, 0.15, 0.15),
@@ -194,7 +245,7 @@ formatting <- list(
   tooltip_padding_Y = 8
 )
 
-make_D3_map(formatting = formatting, width = 610, height = 700, single_file = TRUE)
+make_D3_map(formatting = formatting, countries = c("GBR", "FRA", "DEU"), width = 610, height = 700, percent = 0.1, single_file = TRUE)
 
 ###########################################################################
 # end R script
