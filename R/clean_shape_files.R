@@ -14,7 +14,7 @@
 low <- sf::read_sf("data/ne_50m_admin_0_map_subunits")
 
 # convert to data frame
-low <- as.data.frame(low)
+# low <- as.data.frame(low)
 
 # choose variables
 low <- dplyr::select(low, SOVEREIGNT, SOV_A3, SUBUNIT, SU_A3, CONTINENT, REGION_UN, SUBREGION, geometry)
@@ -284,8 +284,9 @@ low <- low %>%
     continent = stringr::str_c(unique(continent), collapse = ", "),
     UN_region = stringr::str_c(unique(UN_region), collapse = ", "),
     UN_subregion = stringr::str_c(unique(UN_subregion), collapse = ", "),
-    geometry = sf::st_union(geometry)
-  )
+    geometry = sf::st_combine(geometry)
+  ) %>%
+  dplyr::ungroup()
 
 ##################################################
 # recode regions
@@ -313,10 +314,13 @@ low$UN_subregion[low$territory_code == "USA-main"] <- "Northern America"
 ##################################################
 
 # select variables
-low <- dplyr::select(low, state_name, state_code, territory_code, continent, UN_region, UN_subregion, geometry)
+low <- dplyr::select(low, state_name, state_code, territory_code, geometry)
+
+# rename variables
+names(low) <- c("ST_name", "ST_code", "UNIT_code", "geometry")
 
 # export data
-write.csv(low, "data/low-resolution-map.csv")
+sf::st_write(low, "data/low-resolution-map/low-resolution-map.shp", delete_dsn = TRUE)
 
 ###########################################################################
 # high resolution
@@ -694,7 +698,7 @@ high$UN_subregion[high$territory_code == "USA-main"] <- "Northern America"
 high <- dplyr::select(high, state_name, state_code, territory_code, continent, UN_region, UN_subregion, geometry)
 
 # export data
-write.csv(high, "data/high-resolution-map.csv")
+suppressWarnings(sf::st_write(high, "data/high-resolution-map/high-resolution-map.shp", delete_dsn = TRUE))
 
 ###########################################################################
 # end R script
