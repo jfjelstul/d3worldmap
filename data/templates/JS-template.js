@@ -305,7 +305,7 @@ function onMouseEnter(d) {
   featureUnderMouse = d3.select(this)
 
   // update the tooltip HTML
-  tooltip.html(d.properties.ADMIN_name)
+  tooltip.html(d.properties.tooltip)
 
   // if not currently zooming
   if(zoomingOn === false) {
