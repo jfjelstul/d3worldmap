@@ -3,15 +3,15 @@
 // ==================================================
 
 // enter data
-var mapData = GEOJSON_DATA
+var mapData = {{GEOJSON_DATA}}
 
 // ==================================================
 // general setup
 // ==================================================
 
 // dimensions
-var width = WIDTH
-var height = HEIGHT
+var width = {{WIDTH}}
+var height = {{HEIGHT}}
 
 // select svg element and apply dimensions
 var svg = d3.select("svg")
@@ -36,9 +36,8 @@ var colorScale = d3.scaleThreshold()
 // ==================================================
 
 // create a projection
-var projection = d3.geoMercator()
-  .scale(1)
-  .translate([0, 0])
+var projection = d3.geoIdentity()
+ .reflectY(true)
 
 // make a path generator
 var path = d3.geoPath()
@@ -48,10 +47,18 @@ var path = d3.geoPath()
 var bounds = path.bounds(mapData)
 
 // calculate new scale
-var scale = 1.02 / Math.max((bounds[1][0] - bounds[0][0]) / width, (bounds[1][1] - bounds[0][1]) / height)
+// var scale = 1 / Math.max((bounds[1][0] - bounds[0][0]) / width, (bounds[1][1] - bounds[0][1]) / height)
+var scale = {{INITIAL_SCALE}}
+// console.log(scale)
+// console.log(bounds[1][0])
+// console.log(bounds[0][0])
+// console.log(bounds[1][1])
+// console.log(bounds[0][1])
 
 // calculate new translation
-var translation = [(width - scale * (bounds[1][0] + bounds[0][0])) / 2, (height - scale * (bounds[1][1] + bounds[0][1])) / 2]
+// var translation = [(width - scale * (bounds[1][0] + bounds[0][0])) / 2, (height - scale * (bounds[1][1] + bounds[0][1])) / 2]
+var translation = [{{INITIAL_TRANSLATION_X}}, {{INITIAL_TRANSLATION_Y}}]
+// console.log(translation)
 
 // update the projection with the new scale and translation
 projection
