@@ -22,25 +22,29 @@
 path {
   stroke: {{FEATURE_LINE_COLOR}};
   fill: {{FEATURE_FILL_COLOR}};
-  /* stroke-width: 0.3px; */
+  fill-opacity: 1;
+  /* stroke-width: {{FEATURE_LINE_SIZE}}px; */
 }
 
 .hovering {
   stroke: {{FEATURE_LINE_COLOR_HOVER}};
   fill: {{FEATURE_FILL_COLOR_HOVER}};
-  /* stroke-width: {{FEATURE_LINE_SIZE_HOVER}}; */
+  fill-opacity: 1;
+  /* stroke-width: {{FEATURE_LINE_SIZE_HOVER}}px; */
 }
 
 .selected {
   stroke: {{FEATURE_LINE_COLOR_SELECT}};
   fill: {{FEATURE_FILL_COLOR_SELECT}};
-  /* stroke-width: {{FEATURE_LINE_SIZE_SELECT}}; */
+  fill-opacity: 1;
+  /* stroke-width: {{FEATURE_LINE_SIZE_SELECT}}px; */
 }
 
 .selected-hovering {
   stroke: {{FEATURE_LINE_COLOR_SELECT_HOVER}};
   fill: {{FEATURE_FILL_COLOR_SELECT_HOVER}};
-  /* stroke-width: {{FEATURE_LINE_SIZE_SELECT}}; */
+  fill-opacity: 0.7;
+  /* stroke-width: {{FEATURE_LINE_SIZE_SELECT_HOVER}}px; */
 }
 
 div.tooltip {
