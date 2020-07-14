@@ -12,7 +12,7 @@
 # source("R/expand_bounding_box.R")
 # source("R/get_bounding_box_ranges.R")
 # source("R/inject.R")
-# source("R/quiet.R")
+# source("R/run_quietly.R")
 
 ###########################################################################
 # create formatting object
@@ -77,8 +77,8 @@
 #' @param file_name \code{string}. The file name used for any files returned by the function.
 #' Each file name will be followed by the appropriate file extension (.html, .css, or .js).
 #' @param resolution \code{string}. Either \code{"low"} or \code{"high"}. 
-#' If \code{"low"}, uses the medium scale data (1:50m) from Natural Earth. 
-#' If \code{"high"}, uses the large scale data (1:10m) from Natural Earth. 
+#' If \code{"low"}, uses the medium scale data (1:50m) from Natural Earth.
+#' If \code{"high"}, uses the large scale data (1:10m) from Natural Earth.
 #' @param single_file \code{logical}. If \code{TRUE}, the function will return a single HTML file.
 #' This file will include all HTML, CSS, JavaScript, and GEOJSON data required to display the map in a browser.
 #' If \code{FALSE}, the function will return an HTML, a CSS file, and a JavaScript file. 
@@ -105,7 +105,11 @@
 #' single_file = TRUE
 #' )
 
-make_D3_map <- function(countries, file_prefix = "D3_map", surrounding = TRUE, main = TRUE, margin = 0, resolution = "low", single_file = TRUE, attributes = NULL, width = NULL, height = NULL) {
+make_D3_map <- function(countries, data = NULL, max_zoom = 20, zoom_speed = 800, color_anchors, color_breaks, missing_color, file_prefix = "D3_map", surrounding = TRUE, main = TRUE, margin = 0, resolution = "low", single_file = TRUE, attributes = NULL, width = NULL, height = NULL) {
+  
+  ##################################################  
+  # error handling
+  ##################################################
   
   # check for attributes
   if(is.null(attributes)) {
@@ -113,18 +117,50 @@ make_D3_map <- function(countries, file_prefix = "D3_map", surrounding = TRUE, m
   }
   
   ##################################################  
-  # prepare CSS
+  # map resolution
   ##################################################
   
   # if resolution == "low", read in low resolution data
   if(resolution == "low") {
     map_data <- sf::read_sf("data/low-resolution-map")
-    
   # if resolution == "high", read in high resolution data
   } else if(resolution == "high") {
     map_data <- sf::read_sf("data/high-resolution-map")
   }
+  
+  ##################################################  
+  # create color data
+  ##################################################
+  
+  # if there is data to merge in
+  if(!is.null(data)) {
+    
+    # rename variables
+    names(data) <- c("ST_code", "fill_variable", "tooltip")
+    
+    # merge in data
+    map_data <- dplyr::left_join(map_data, data, by = "ST_code")
+    
+    # convert fill variable to a factor
+    map_data$fill_variable <- cut(map_data$fill_variable, breaks = color_breaks)
+    
+    # create a color palette function
+    palette <- colorRampPalette(colors = color_anchors)
+    
+    # create color data
+    color_data <- dplyr::tibble(fill_variable = factor(levels(map_data$fill_variable)), fill_color = palette(color_breaks))
+    
+    # merge in color data
+    map_data <- dplyr::left_join(map_data, color_data, by = c("fill_variable"))
+    
+    # fill in missing colors
+    map_data$fill_color[is.na(map_data$fill_color)] <- missing_color
+  }
 
+  ##################################################  
+  # prepare map data
+  ##################################################
+  
   # select data
   out <- map_data
   
@@ -170,8 +206,16 @@ make_D3_map <- function(countries, file_prefix = "D3_map", surrounding = TRUE, m
   # clip geometry based on the bounding box
   out <- run_quietly(sf::st_crop(sf::st_buffer(out, 0), xmin = bounding_box$xmin, ymin = bounding_box$ymin, xmax = bounding_box$xmax, ymax = bounding_box$ymax))
 
+  ##################################################  
+  # create tooltip
+  ##################################################
+  
   # tooltip HTML
-  out$tooltip <- out$ST_name
+  # out$tooltip <- out$ST_name
+  
+  ##################################################  
+  # prepare GEOJSON data
+  ##################################################
   
   # write file
   run_quietly(geojsonio::geojson_write(out, file = "data/temp.geojson"))
@@ -235,6 +279,19 @@ make_D3_map <- function(countries, file_prefix = "D3_map", surrounding = TRUE, m
   js <- inject(js, "WIDTH", width)
   js <- inject(js, "HEIGHT", height)
   
+  # line width
+  js <- inject(js, "FEATURE_LINE_SIZE", attributes$feature_line_size)
+  js <- inject(js, "FEATURE_LINE_SIZE_HOVER", attributes$feature_line_size_hover)
+  
+  # choropleth
+  js <- inject(js, "CHOROPLETH", ifelse(is.null(data), "false", "true"))
+  
+  # max zoom
+  js <- inject(js, "MAX_ZOOM", max_zoom)
+  
+  # zoom speed
+  js <- inject(js, "ZOOM_SPEED", zoom_speed)
+  
   # set initial position
   js <- inject(js, "INITIAL_SCALE", initial_scale)
   js <- inject(js, "INITIAL_TRANSLATION_X", initial_translation_x)
@@ -289,55 +346,107 @@ make_D3_map <- function(countries, file_prefix = "D3_map", surrounding = TRUE, m
 # test function
 ##################################################
 
-# attributes <- list(
-#   
-#   map_border_color = c(0.15, 0.15, 0.15),
-#   map_border_size = 1,
-#   map_background_color = c(0.97, 0.97, 0.97),
-#   
-#   feature_line_color = c(0.15, 0.15, 0.15),
-#   feature_fill_color = c(0.90, 0.90, 0.90),
-#   feature_line_size = 0.5,
-#   
-#   feature_line_color_hover = c(0.15, 0.15, 0.15),
-#   feature_fill_color_hover = c(0.80, 0.80, 0.80),
-#   feature_line_size_hover = 0.5,
-#   
-#   feature_line_color_select = c(0.15, 0.15, 0.15),
-#   feature_fill_color_select = c(0.70, 0.70, 0.70),
-#   feature_line_size_select = 0.5,
-#   
-#   feature_line_color_select_hover = c(0.15, 0.15, 0.15),
-#   feature_fill_color_select_hover = c(0.75, 0.75, 0.75),
-#   feature_line_size_select_hover = 0.5,
-#   
-#   tooltip_background_color = c(0, 0, 0, 0.7),
-#   tooltip_border_size = 0,
-#   tooltip_border_color = c(0.15, 0.15, 0.15),
-#   tooltip_font_size = 10,
-#   tooltip_font_color = c(1, 1, 1),
-#   tooltip_border_radius = 8,
-#   tooltip_padding_X = 16,
-#   tooltip_padding_Y = 8
-# )
+attributes <- list(
 
-# # tall example
-# make_D3_map(width = NULL, height = 500, countries = c("DEU", "NOR"), attributes = attributes, surrounding = FALSE, main = TRUE, resolution = "low", margin = 25, single_file = TRUE)
-# make_D3_map(width = 500, height = NULL, countries = c("DEU", "NOR"), attributes = attributes, surrounding = FALSE, main = TRUE, resolution = "low", margin = 25, single_file = TRUE)
-# make_D3_map(width = 500, height = 500, countries = c("DEU", "NOR"), attributes = attributes, surrounding = FALSE, main = TRUE, resolution = "low", margin = 25, single_file = TRUE)
-# 
-# # wide example
-# make_D3_map(width = NULL, height = 400, countries = c("PRT", "ITA"), attributes = attributes, surrounding = FALSE, main = TRUE, resolution = "low", margin = 25, single_file = TRUE)
-# make_D3_map(width = 500, height = NULL, countries = c("PRT", "ITA"), attributes = attributes, surrounding = FALSE, main = TRUE, resolution = "low", margin = 25, single_file = TRUE)
-# make_D3_map(width = 500, height = 500, countries = c("PRT", "ITA"), attributes = attributes, surrounding = FALSE, main = TRUE, resolution = "low", margin = 25, single_file = TRUE)
-# 
-# make_D3_map(width = 500, height = 500, countries = c("PRT", "ITA"), attributes = attributes, surrounding = FALSE, main = TRUE, resolution = "low", margin = 100, single_file = TRUE)
-# make_D3_map(width = 500, height = 500, countries = c("PRT", "ITA"), attributes = attributes, surrounding = TRUE, main = TRUE, resolution = "low", margin = 100, single_file = TRUE)
-# 
-# make_D3_map(width = 500, height = 500, countries = c("DEU", "NOR"), attributes = attributes, surrounding = TRUE, main = TRUE, resolution = "low", margin = 50, single_file = TRUE)
-# make_D3_map(width = 500, height = 500, countries = c("DEU", "NOR"), attributes = attributes, surrounding = TRUE, main = FALSE, resolution = "low", margin = 50, single_file = TRUE)
-# 
-# make_D3_map(width = 700, height = 700, countries = c("NOR", "ITA"), attributes = attributes, surrounding = TRUE, main = TRUE, resolution = "high", margin = 25, single_file = TRUE)
+  map_border_color = c(0.15, 0.15, 0.15),
+  map_border_size = 1,
+  map_background_color = c(0.97, 0.97, 0.97),
+
+  feature_line_color = c(0.15, 0.15, 0.15),
+  feature_fill_color = c(0.90, 0.90, 0.90),
+  feature_line_size = 0.5,
+
+  feature_line_color_hover = c(0.15, 0.15, 0.15),
+  feature_fill_color_hover = c(0.80, 0.80, 0.80),
+  feature_line_size_hover = 0.5,
+
+  feature_line_color_select = c(0.15, 0.15, 0.15),
+  feature_fill_color_select = c(0.70, 0.70, 0.70),
+  feature_line_size_select = 0.5,
+
+  feature_line_color_select_hover = c(0.15, 0.15, 0.15),
+  feature_fill_color_select_hover = c(0.75, 0.75, 0.75),
+  feature_line_size_select_hover = 0.5,
+
+  tooltip_background_color = c(0, 0, 0, 0.7),
+  tooltip_border_size = 0,
+  tooltip_border_color = c(0.15, 0.15, 0.15),
+  tooltip_font_size = 10,
+  tooltip_font_color = c(1, 1, 1),
+  tooltip_border_radius = 8,
+  tooltip_padding_X = 16,
+  tooltip_padding_Y = 8
+)
+
+# tall example
+make_D3_map(width = NULL, height = 500, countries = c("DEU", "NOR"), attributes = attributes, surrounding = FALSE, main = TRUE, resolution = "low", margin = 25, single_file = TRUE)
+make_D3_map(width = 500, height = NULL, countries = c("DEU", "NOR"), attributes = attributes, surrounding = FALSE, main = TRUE, resolution = "low", margin = 25, single_file = TRUE)
+make_D3_map(width = 500, height = 500, countries = c("DEU", "NOR"), attributes = attributes, surrounding = FALSE, main = TRUE, resolution = "low", margin = 25, single_file = TRUE)
+
+# wide example
+make_D3_map(width = NULL, height = 400, countries = c("PRT", "ITA"), attributes = attributes, surrounding = FALSE, main = TRUE, resolution = "low", margin = 25, single_file = TRUE)
+make_D3_map(width = 500, height = NULL, countries = c("PRT", "ITA"), attributes = attributes, surrounding = FALSE, main = TRUE, resolution = "low", margin = 25, single_file = TRUE)
+make_D3_map(width = 500, height = 500, countries = c("PRT", "ITA"), attributes = attributes, surrounding = FALSE, main = TRUE, resolution = "low", margin = 25, single_file = TRUE)
+
+make_D3_map(width = 500, height = 500, countries = c("PRT", "ITA"), attributes = attributes, surrounding = FALSE, main = TRUE, resolution = "low", margin = 100, single_file = TRUE)
+make_D3_map(width = 500, height = 500, countries = c("PRT", "ITA"), attributes = attributes, surrounding = TRUE, main = TRUE, resolution = "low", margin = 100, single_file = TRUE)
+
+make_D3_map(width = 500, height = 500, countries = c("DEU", "NOR"), attributes = attributes, surrounding = TRUE, main = TRUE, resolution = "low", margin = 50, single_file = TRUE)
+make_D3_map(width = 500, height = 500, countries = c("DEU", "NOR"), attributes = attributes, surrounding = TRUE, main = FALSE, resolution = "low", margin = 50, single_file = TRUE)
+
+# map settings
+attributes <- list(
+  
+  map_border_color = c(0.15, 0.15, 0.15),
+  map_border_size = 1,
+  map_background_color = c(0.97, 0.97, 0.97),
+  
+  feature_line_color = c(0.15, 0.15, 0.15),
+  feature_fill_color = c(0.90, 0.90, 0.90),
+  feature_line_size = 1,
+  
+  feature_line_color_hover = c(0.15, 0.15, 0.15),
+  feature_fill_color_hover = c(0.80, 0.80, 0.80),
+  feature_line_size_hover = 2,
+  
+  feature_line_color_select = c(0.15, 0.15, 0.15),
+  feature_fill_color_select = c(0.70, 0.70, 0.70),
+  feature_line_size_select = 1,
+  
+  feature_line_color_select_hover = c(0.15, 0.15, 0.15),
+  feature_fill_color_select_hover = c(0.75, 0.75, 0.75),
+  feature_line_size_select_hover = 2,
+  
+  tooltip_background_color = c(0, 0, 0, 0.7),
+  tooltip_border_size = 0,
+  tooltip_border_color = c(0.15, 0.15, 0.15),
+  tooltip_font_size = 10,
+  tooltip_font_color = c(1, 1, 1),
+  tooltip_border_radius = 8,
+  tooltip_padding_X = 16,
+  tooltip_padding_Y = 8
+)
+
+# make test data
+data <- dplyr::tibble(ST_code = unique(map_data$ST_code), ST_name = unique(map_data$ST_name))
+data$var <- runif(nrow(data), 0, 1)
+data$var[data$ST_code == "DEU"] <- NA
+
+# tooltip
+data$tooltip <- stringr::str_c(data$ST_name, ": ", ifelse(is.na(data$var), "Missing", round(data$var, 2)))
+data$ST_name <- NULL
+
+# make map
+make_D3_map(
+  data = data, attributes = attributes, 
+  countries = c("ITA", "NOR"), 
+  width = 700, height = 700, margin = 50,
+  zoom_speed = 800, max_zoom = 8, 
+  color_anchors = c("#3498DB", "#FFFFFF", "#E74C3C"), color_breaks = 10, 
+  missing_color = "gray85",
+  surrounding = TRUE, main = TRUE, 
+  resolution = "low", single_file = TRUE
+)
 
 ###########################################################################
 # end R script
