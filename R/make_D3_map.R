@@ -438,11 +438,11 @@ data$ST_name <- NULL
 
 # make map
 make_D3_map(
-  data = data, attributes = attributes, 
+  data = data, attributes = attributes,
   countries = c("ITA", "NOR"), 
   width = 700, height = 700, margin = 50,
   zoom_speed = 800, max_zoom = 8, 
-  color_anchors = c("#3498DB", "#FFFFFF", "#E74C3C"), color_breaks = 10, 
+  color_anchors = c("#3498DB", "#FFFFFF", "#E74C3C"), color_breaks = 6, 
   missing_color = "gray85",
   surrounding = TRUE, main = TRUE, 
   resolution = "low", single_file = TRUE
