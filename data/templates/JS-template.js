@@ -12,29 +12,32 @@ var mapData = {{GEOJSON_DATA}}
 // dimensions
 var width = {{WIDTH}}
 var height = {{HEIGHT}}
-var strokeWidth = {{FEATURE_LINE_SIZE}}
-var strokeWidthHover = {{FEATURE_LINE_SIZE_HOVER}}
-var currentK = 1
 
 // select svg element and apply dimensions
 var svg = d3.select("svg")
   .attr("width", width)
   .attr("height", height)
 
+// stroke width
+var strokeWidth = {{FEATURE_LINE_SIZE}}
+var strokeWidthHover = {{FEATURE_LINE_SIZE_HOVER}}
+
+// zoom parameters
+var zoomingOn = false
+var max_zoom = {{MAX_ZOOM}}
+var zoom_speed = {{ZOOM_SPEED}}
+var currentK = 1
+
 // define variables
 var selectedFeature = d3.select(null)
 var shadedFeature = d3.select(null)
+
+// mouse parameters
 var featureUnderMouse = d3.select(null)
-var featureUnderMouseOnZoom = d3.select(null)
-var zoomingOn = false
 var mousePosition = [,]
+
+// color parameters
 var choropleth = {{CHOROPLETH}}
-
-// zoom parameters
-var max_zoom = {{MAX_ZOOM}}
-var zoom_speed = {{ZOOM_SPEED}}
-
-// var isSelected = false;
 
 // ==================================================
 // create the projection
@@ -52,18 +55,10 @@ var path = d3.geoPath()
 var bounds = path.bounds(mapData)
 
 // calculate new scale
-// var scale = 1 / Math.max((bounds[1][0] - bounds[0][0]) / width, (bounds[1][1] - bounds[0][1]) / height)
 var scale = {{INITIAL_SCALE}}
-// console.log(scale)
-// console.log(bounds[1][0])
-// console.log(bounds[0][0])
-// console.log(bounds[1][1])
-// console.log(bounds[0][1])
 
 // calculate new translation
-// var translation = [(width - scale * (bounds[1][0] + bounds[0][0])) / 2, (height - scale * (bounds[1][1] + bounds[0][1])) / 2]
 var translation = [{{INITIAL_TRANSLATION_X}}, {{INITIAL_TRANSLATION_Y}}]
-// console.log(translation)
 
 // update the projection with the new scale and translation
 projection
@@ -111,7 +106,6 @@ d.on('mouseenter', onMouseEnter)
 // mouse events
 svg.on("click", deselectFeature)
   .on("mousemove", onMouseMove)
-// svg.on("mousemove", onMouseMove)
 
 // ==================================================
 // zoom functions
@@ -145,14 +139,6 @@ function onZoomStart() {
 
   // clear currently shaded feature
   shadedFeature = d3.select(null)
-
-  // if(isSelected) {
-  //   selectedFeature = d3.select(null);
-  //   isSelected = false;
-  // }
-
-  // record which country the mouse is over when zooming starts
-  // featureUnderMouseOnZoom = featureUnderMouse
 }
 
 // runs while zooming
@@ -177,13 +163,10 @@ function onZoom() {
   // update transform
   g.attr("transform", "translate(" + [xChange, yChange] + ") scale(" + thisEvent.k + ")")
 
-  // update line width to keep it constant
+  // save the zoom scale
   currentK = thisEvent.k;
-  // var featureClass = d.attr("class")
-  // var currentStrokeWidth = strokeWidth
-  // if(featureClass == "hovering") {
-  //   currentStrokeWidth = strokeWidthHover
-  // }
+
+  // update line width to keep it constant
   d.attr("stroke-width", strokeWidth / currentK + "px")
 }
 
@@ -192,110 +175,7 @@ function onZoomEnd() {
 
   // mark that zooming is ending to allow other mouse events
   zoomingOn = false
-
-  // unshade currently shaded feature
-  // shadedFeature.classed("hovering", false)
-
-  // set the stroke width for the feature
-  // shadedFeature.attr("stroke-width", strokeWidth / currentK + "px")
-
-  // clear currently shaded feature
-  // shadedFeature = d3.select(null)
-
-  // turn off the tooltip
-  // turnTooltipOff()
-
-  // get the feature under the mouse
-  // featureUnderMouse = d3.select(document.elementFromPoint(mousePosition[0], mousePosition[1]))
-
-  // console.log(featureUnderMouse.properties.ST_name)
-
-  // // if the mouse end position is over water
-  // //featureUnderMouse.node() === document.getElementById("map")
-  // if(featureUnderMouse.node() === null) {
-  //
-  //   // log message
-  //   console.log("end zoom in water")
-  //
-  //   // unshade currently shaded feature
-  //   shadedFeature.classed("hovering", false)
-  //
-  //   // clean currently shaded feature
-  //   shadedFeature = d3.select(null)
-  //
-  //   // turn off tooltip
-  //   turnTooltipOff()
-  //
-  // // if the mouse end position is over land
-  // } else {
-  //
-  //   // if mouse end position is over the same country as when zooming started
-  //   if(featureUnderMouse.node() === featureUnderMouseOnZoom.node()) {
-  //
-  //     // print message
-  //     console.log("end zoom on same feature")
-  //
-  //     // turn the tooltip back on
-  //     turnTooltipOn()
-  //
-  //   // if mouse end position is over a different country than when zooming started
-  //   } else {
-  //
-  //     // print message
-  //     console.log("end zoom on different feature")
-  //
-  //     // unshade the currently shaded country (if any)
-  //     shadedFeature.classed("hovering", false)
-  //
-  //     // shade the country that is currently under the mouse (if any)
-  //     shadedFeature = featureUnderMouse.classed("hovering", true)
-  //
-  //     // turn the tooltip back on
-  //     turnTooltipOn()
-  //   }
-  // }
 }
-
-// ==================================================
-// feature selection functions
-// ==================================================
-
-// // function to select a feature
-// function selectFeature(d) {
-//
-//   // unselect the currently selected feature (if there is one)
-//   selectedFeature.classed("selected", false)
-//
-//   // calculate bounds of the country that was clicked on
-//   var bounds = path.bounds(d),
-//
-//   // x range
-//   dx = bounds[1][0] - bounds[0][0],
-//
-//   // y range
-//   dy = bounds[1][1] - bounds[0][1],
-//
-//   // half
-//   x = (bounds[0][0] + bounds[1][0]) / 2,
-//
-//   // half
-//   y = (bounds[0][1] + bounds[1][1]) / 2,
-//
-//   // new scale
-//   scale = Math.max(1, Math.min(20, 0.9 / Math.max(dx / width, dy / height))),
-//
-//   // new translate
-//   translate = [width / 2 - scale * x, height / 2 - scale * y];
-//
-//   // zoom in on this feature
-//   d3.event.stopPropagation()
-//   svg.transition().duration(400).call(
-//     zoom.transform,
-//     d3.zoomIdentity
-//     .translate(translate[0], translate[1])
-//     .scale(scale)
-//   )
-// }
 
 // function to deselect a feature
 function deselectFeature() {
@@ -381,7 +261,7 @@ function onMouseEnter(d) {
 function onMouseLeave() {
 
   // clear the country recorded as being under the mouse
-  // featureUnderMouse = d3.select(null)
+  featureUnderMouse = d3.select(null)
 
   // turn off the tooltip
   turnTooltipOff()
@@ -391,22 +271,6 @@ function onMouseLeave() {
 
   // set the stroke width for the feature
   shadedFeature.attr("stroke-width", strokeWidth / currentK + "px")
-
-  // unselect the feature
-  // shadedFeature = d3.select(null)
-
-  // if not currently zooming
-  // if(zoomingOn === false) {
-  //
-  //   // unshade the feature
-  //   shadedFeature.classed("hovering", false)
-  //
-  //   // set the stroke width for the feature
-  //   shadedFeature.attr("stroke-width", strokeWidth / currentK + "px")
-  //
-  //   // unselect the feature
-  //   shadedFeature = d3.select(null)
-  // }
 }
 
 // function to update the position of the tooltip when the mouse moves
@@ -428,10 +292,7 @@ function onMouseMove(d) {
       // set the stroke width for the feature
       shadedFeature.attr("stroke-width", strokeWidth / currentK + "px")
 
-      // console.log(featureUnderMouse.node())
-      // console.log(shadedFeature.node())
-      // console.log(d3.select(null))
-
+      // if there is a feature under the mouse
       if(featureUnderMouse.node() !== null) {
 
         // shade the feature under the mouse
@@ -488,56 +349,6 @@ function onClick(d) {
     .translate(translate[0], translate[1])
     .scale(scale)
   )
-
-  // // if this is the currently selected feature
-  // if(selectedFeature.node() === this) {
-  //
-  //   // deselect the feature
-  //   // deselectFeature()
-  //   //
-  //   // isSelected = false;
-  //
-  // // if this is not the currently selected feature
-  // } else {
-  //
-  //   // isSelected = true;
-  //
-  //   // unselect the currently selected feature (if there is one)
-  //   selectedFeature.classed("selected", false)
-  //
-  //   // select this feature
-  //   selectedFeature = d3.select(this).classed("selected", true)
-  //
-  //   // calculate bounds of the country that was clicked on
-  //   var bounds = path.bounds(d)
-  //
-  //   // x range
-  //   var xRange = bounds[1][0] - bounds[0][0]
-  //
-  //   // y range
-  //   var yRange = bounds[1][1] - bounds[0][1]
-  //
-  //   // divide range by 2
-  //   var x = (bounds[0][0] + bounds[1][0]) / 2
-  //
-  //   // divide range by 2
-  //   var y = (bounds[0][1] + bounds[1][1]) / 2
-  //
-  //   // new scale
-  //   var scale = Math.max(1, Math.min(20, 0.9 / Math.max(xRange / width, yRange / height)))
-  //
-  //   // new translate
-  //   var translate = [width / 2 - scale * x, height / 2 - scale * y]
-  //
-  //   // zoom in on this feature
-  //   d3.event.stopPropagation()
-  //   svg.transition().duration(400).call(
-  //     zoom.transform,
-  //     d3.zoomIdentity
-  //     .translate(translate[0], translate[1])
-  //     .scale(scale)
-  //   )
-  // }
 }
 
 // ==================================================
