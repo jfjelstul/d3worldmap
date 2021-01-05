@@ -4,15 +4,15 @@
 ###########################################################################
 
 # set working directory
-# setwd("~/Documents/d3worldmap/")
+# setwd("~/Dropbox/d3worldmap/")
 
-# source("R/calculate_dimensions.R")
-# source("R/convert_color.R")
-# source("R/create_bounding_box.R")
-# source("R/expand_bounding_box.R")
-# source("R/get_bounding_box_ranges.R")
-# source("R/inject.R")
-# source("R/run_quietly.R")
+source("R/calculate_dimensions.R")
+source("R/convert_color.R")
+source("R/create_bounding_box.R")
+source("R/expand_bounding_box.R")
+source("R/get_bounding_box_ranges.R")
+source("R/inject.R")
+source("R/run_quietly.R")
 
 ###########################################################################
 # create formatting object
@@ -446,6 +446,64 @@ make_D3_map(
   missing_color = "gray85",
   surrounding = TRUE, main = TRUE, 
   resolution = "low", single_file = TRUE
+)
+
+###########################################################################
+# EU map
+###########################################################################
+
+attributes <- list(
+  
+  map_border_color = c(0.15, 0.15, 0.15),
+  map_border_size = 0,
+  map_background_color = c(1, 1, 1),
+  
+  feature_line_color = c(1, 1, 1),
+  feature_fill_color = c(0.90, 0.90, 0.90),
+  feature_line_size = 1,
+  
+  feature_line_color_hover = c(1, 1, 1),
+  feature_fill_color_hover = c(0.80, 0.80, 0.80),
+  feature_line_size_hover = 1,
+  
+  feature_line_color_select = c(1, 1, 1),
+  feature_fill_color_select = c(0.70, 0.70, 0.70),
+  feature_line_size_select = 1,
+  
+  feature_line_color_select_hover = c(1, 1, 1),
+  feature_fill_color_select_hover = c(0.75, 0.75, 0.75),
+  feature_line_size_select_hover = 1,
+  
+  tooltip_background_color = c(0, 0, 0, 0.7),
+  tooltip_border_size = 0,
+  tooltip_border_color = c(0.15, 0.15, 0.15),
+  tooltip_font_size = 10,
+  tooltip_font_color = c(1, 1, 1),
+  tooltip_border_radius = 8,
+  tooltip_padding_X = 16,
+  tooltip_padding_Y = 8
+)
+
+# make map
+make_D3_map(
+  data = data,
+  width = NULL, height = 500, 
+  countries = c(
+    "AUT", "BEL", "BGR", "CYP", "CZE", 
+    "DEU", "DNK", "ESP", "EST", "FIN", 
+    "FRA", "GBR", "GRC", "HRV", "HUN", 
+    "IRL", "ITA", "LTU", "LUX", "LVA", 
+    "MLT", "NLD", "POL", "PRT", "ROU",
+    "SVK", "SVN", "SWE"),
+  attributes = attributes, 
+  surrounding = FALSE, 
+  main = TRUE, 
+  color_anchors = c("#3498DB", "#FFFFFF", "#E74C3C"), color_breaks = 6, 
+  missing_color = "gray85",
+  resolution = "low", 
+  margin = 50, 
+  file_prefix = "EU_map",
+  single_file = TRUE
 )
 
 ###########################################################################
